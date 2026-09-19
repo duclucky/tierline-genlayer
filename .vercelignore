@@ -1,0 +1,9 @@
+.venv/
+artifacts/
+contracts/
+tests/
+spikes/
+pyproject.toml
+requirements.txt
+gltest.config.yaml
+docs/

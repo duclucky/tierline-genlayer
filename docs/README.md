@@ -6,8 +6,8 @@
 - Project name: Tierline
 - Project slug: `tierline`
 - Category: Projects
-- Status: `BUILDING` (Phase 4 specification locked)
-- Repository: local child Git repository; public remote is intentionally deferred to Phase 11
+- Status: `DEPLOYED` (Studionet contract and Vercel app verified)
+- Repository: https://github.com/duclucky/tierline-genlayer
 - Target network: GenLayer Studionet
 
 ## One-sentence product hook

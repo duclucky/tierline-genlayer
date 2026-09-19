@@ -11,6 +11,10 @@ risk guide.
 - Address: `0x79e9B3f5e844b46F1DD7a33da038CAF92E1BC20f`
 - Explorer: https://explorer-studio.genlayer.com/address/0x79e9B3f5e844b46F1DD7a33da038CAF92E1BC20f
 
+## Live app
+
+https://tierline-genlayer.vercel.app
+
 ## How it works
 
 1. A sponsor creates an assessment with exactly 2 GEN and assigns distinct
