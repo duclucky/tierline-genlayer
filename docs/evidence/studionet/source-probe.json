@@ -1,0 +1,31 @@
+{
+  "probeContract": "0xdd83A33dcB2C1dF42F4Bd52E02684b5130B66Ab2",
+  "probeTx": "0x055d83c10e5465e19809c9b454bb44ff86bcf181aaf160714fd1921d4d50124b",
+  "result": {
+    "html": {
+      "length_bucket": "<100k",
+      "markers": {
+        "high risk": true,
+        "minimal or no risk": true,
+        "regulation (eu) 2024/1689": true,
+        "shaping europe": true,
+        "transparency risk": true,
+        "unacceptable risk": true
+      },
+      "stage": "ok"
+    },
+    "text": {
+      "length_bucket": "<50k",
+      "markers": {
+        "high risk": true,
+        "minimal or no risk": true,
+        "regulation (eu) 2024/1689": true,
+        "shaping europe": true,
+        "transparency risk": true,
+        "unacceptable risk": true
+      },
+      "stage": "ok"
+    }
+  },
+  "note": "Bounded probe over normalized (lowercase, whitespace-collapsed) rendered text; stage/length bucket/boolean marker presence only; no raw page payload stored."
+}

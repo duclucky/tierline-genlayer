@@ -48,13 +48,16 @@ def set_time(vm, timestamp: int) -> None:
 
 
 def ec_page() -> str:
+    # Deliberately mixes case and runs some headings together so the
+    # contract's whitespace/case normalization is exercised by the suite.
     return (
-        "AI Act | Shaping Europe's digital future. European AI Act - Regulatory "
+        "AI Act | Shaping   europe's digital future. European AI Act - Regulatory "
         "framework overview. Page id: regulatory-framework-ai. "
+        "The AI Act (REGULATION (EU)  2024/1689) is the legal framework. "
         "The AI Act follows a risk-based approach with four categories. "
         "Unacceptable risk: AI practices that are banned, including manipulation, social "
         "scoring, and real-time biometric identification by law enforcement. "
-        "High risk: AI systems in critical infrastructure, education, employment, essential "
+        "high   RISK: AI systems in critical infrastructure, education, employment, essential "
         "services, law enforcement, migration, justice and democracy. "
         "Transparency risk: AI systems that interact with people must disclose the AI "
         "interaction, label synthetic content and deepfakes. "

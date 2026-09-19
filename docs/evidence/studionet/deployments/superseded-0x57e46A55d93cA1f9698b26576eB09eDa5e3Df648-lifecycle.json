@@ -1,0 +1,33 @@
+{
+  "network": "studionet",
+  "evidenceIsSanitized": true,
+  "actors": {
+    "sponsor": "0xC495ef51618D03267A1f227aFe5b27B38c748272",
+    "operator": "0x45aD397c438397A702B53a7499a78D08961D39Db",
+    "steward": "0x0FC3C5fc623F108D36BE1dA43ffA9ee21EC6dD2E"
+  },
+  "steps": {
+    "create": {
+      "assessmentId": "A-1",
+      "hash": "0x52fc3482b29d04df0857b456b6dcd70c5172032afa0f152fe29b04f9554d772b",
+      "phase": "AWAITING_RATIFICATION"
+    },
+    "ratifyOperator": {
+      "hash": "0xd34f1dfd42c56c1073ba54a8000f11552baeb7c2397d10dc47982127f91c739f"
+    },
+    "ratifySteward": {
+      "hash": "0xef3154e43a88025915450ebfcae54325485c31f57727d7abebbacbb8cc9f8009"
+    },
+    "requestReview": {
+      "hash": "0x36f096a33dfe24497e03eb7b578025daa1a921445c1de6afba5044421ead8893"
+    }
+  },
+  "revision_status": "ABANDONED",
+  "archive_reason": "Structural source bug: the official-source identity marker required the URL slug, which is absent from the page's rendered text, so every review resolved to non-penalizing RETRYABLE and no terminal tier is reachable. Fixed in the superseding revision.",
+  "value_status": "Assessment A-1 holds exactly 2 GEN locked (creation tx 0x52fc3482b29d04df0857b456b6dcd70c5172032afa0f152fe29b04f9554d772b). Under the broken-contract replacement exception no further value is sent to this revision; the contract's own recover_expired path can refund the sponsor credit after the review deadline. Locked GEN is disclosed, not silently orphaned.",
+  "ratifications": {
+    "operator_tx": "0xd34f1dfd42c56c1073ba54a8000f11552baeb7c2397d10dc47982127f91c739f",
+    "steward_tx": "0xef3154e43a88025915450ebfcae54325485c31f57727d7abebbacbb8cc9f8009",
+    "review_tx_retryable": "0x36f096a33dfe24497e03eb7b578025daa1a921445c1de6afba5044421ead8893"
+  }
+}

@@ -12,14 +12,17 @@ from genlayer import *
 # can supply an alternate evidence URL or version.
 SOURCE_URL = "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
 SOURCE_VERSION = "EC-AI-RISK-2026-08-03"
-# Page-identity marker verified against the official page's rendered text.
-SOURCE_IDENTITY_MARKER = "Shaping Europe"
+# Objective markers are checked over the normalized (lowercase,
+# whitespace-collapsed) rendered text. The version anchor is the official
+# legal citation of the AI Act; the CMS footer stamp "Last update" is not
+# part of the official page rendering that validators fetch.
+SOURCE_IDENTITY_MARKER = "shaping europe"
 REQUIRED_MARKERS = (
-    "Unacceptable risk",
-    "High risk",
-    "Transparency risk",
-    "Minimal or no risk",
-    "Last update 3 August 2026",
+    "unacceptable risk",
+    "high risk",
+    "transparency risk",
+    "minimal or no risk",
+    "regulation (eu) 2024/1689",
 )
 MAX_SOURCE_CHARS = 160000
 
@@ -152,6 +155,10 @@ class _EoaRecipient:
 
     class Write:
         pass
+
+
+def _normalize_page(page: str) -> str:
+    return " ".join(page.lower().split())
 
 
 def _sender() -> Address:
@@ -593,12 +600,15 @@ class Tierline(gl.Contract):
                 not isinstance(page, str)
                 or len(page) == 0
                 or len(page) > MAX_SOURCE_CHARS
-                or SOURCE_IDENTITY_MARKER not in page
             ):
                 result["reason"] = "official policy source unavailable or out of bounds"
                 return result
+            normalized_page = _normalize_page(page)
+            if SOURCE_IDENTITY_MARKER not in normalized_page:
+                result["reason"] = "official policy source is missing its page identity marker"
+                return result
             for marker in REQUIRED_MARKERS:
-                if marker not in page:
+                if marker not in normalized_page:
                     result["reason"] = "official policy source is missing a required version marker"
                     return result
             result["source_coverage"] = "FULL"
