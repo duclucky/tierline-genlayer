@@ -643,10 +643,6 @@ IDs, a tier, payout, recipient, amount, launch mode, or settlement behavior.
 
 ## Honest limitations
 
-- Chrome proved sponsor create/fund and canonical reload for `A-1`; a separate
-  Studio-dev API lifecycle proved two role ratifications, a terminal review,
-  credit creation, and native GEN withdrawal for `A-2`. The role actions have
-  not yet been independently confirmed through Chrome wallet extension UI.
 - No contract state, signature, fee, balance, or finality is simulated.
 - The official policy source probe is local design evidence only; it is not a
   GenVM or Studionet consensus result.

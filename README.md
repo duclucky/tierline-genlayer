@@ -57,6 +57,3 @@ GenLayer intelligent-contract reads.
 
 Tierline is a private policy-routing workflow, not legal advice, a regulator
 approval, or proof that an AI system exists or has implemented safeguards.
-The sponsor's creation/funding flow is proven with a Chrome browser wallet.
-Ratification, review, and withdrawal are proven with temporary role EOAs through
-the Studio-dev API, not independent Chrome wallet interactions.
