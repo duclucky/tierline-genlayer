@@ -14,3 +14,5 @@ docs/evidence/localnet/
 docs/evidence/studionet/private/
 deployment.local.json
 frontend/.vercel/
+
+.vercel
