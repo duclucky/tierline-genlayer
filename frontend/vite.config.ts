@@ -11,7 +11,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/genlayer-rpc": {
-        target: "https://studio.genlayer.com",
+        target: "https://studio-dev.genlayer.com",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/genlayer-rpc/, "/api"),
       },

@@ -1,4 +1,4 @@
-const STUDIONET_RPC = "https://studio.genlayer.com/api";
+const STUDIO_DEV_RPC = "https://studio-dev.genlayer.com/api";
 const MAX_BODY_BYTES = 64 * 1024;
 
 function jsonResult(status, body) {
@@ -26,7 +26,7 @@ export async function forwardGenlayerRpc(request, fetchImpl = fetch) {
   }
 
   try {
-    const upstream = await fetchImpl(STUDIONET_RPC, {
+    const upstream = await fetchImpl(STUDIO_DEV_RPC, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(body),

@@ -9,6 +9,8 @@ import type { TransactionState } from "../adapter";
 import { useWallet } from "../wallet/WalletProvider";
 
 const steps = ["Participants", "Use profile", "Timing", "Review & fund"];
+const MAX_AFFECTED_PEOPLE = 400;
+const MAX_DECISION_ROLE = 120;
 
 type FormState = {
   operator: string;
@@ -47,7 +49,7 @@ export function NewAssessmentPage() {
 
   const stepValid = useMemo(() => {
     if (step === 0) return isAddress(form.operator) && isAddress(form.steward) && form.operator.toLowerCase() !== form.steward.toLowerCase();
-    if (step === 1) return form.systemName.trim().length >= 3 && form.purpose.trim().length >= 40 && form.affectedPeople.trim().length >= 20 && form.decisionRole.trim().length >= 20;
+    if (step === 1) return form.systemName.trim().length >= 3 && form.purpose.trim().length >= 40 && form.affectedPeople.trim().length >= 20 && form.affectedPeople.trim().length <= MAX_AFFECTED_PEOPLE && form.decisionRole.trim().length >= 20 && form.decisionRole.trim().length <= MAX_DECISION_ROLE;
     if (step === 2) return Number(form.ratificationDays) >= 1 && Number(form.ratificationDays) <= 14 && Number(form.reviewDays) >= 1 && Number(form.reviewDays) <= 30;
     return true;
   }, [step, form]);
@@ -116,8 +118,8 @@ export function NewAssessmentPage() {
           <fieldset><legend>Describe the exact AI use</legend><p className="field-intro">Write observable purpose and decision context. Do not include private or personal data.</p>
             <label>System name<input value={form.systemName} onChange={(e) => update("systemName", e.target.value)} maxLength={80} aria-invalid={showErrors && form.systemName.trim().length < 3} /><small>{form.systemName.length}/80 characters</small></label>
             <label>Purpose and operating context<textarea value={form.purpose} onChange={(e) => update("purpose", e.target.value)} rows={5} maxLength={900} aria-invalid={showErrors && form.purpose.trim().length < 40} /><small>At least 40 characters. Explain what the system does and where it is used.</small></label>
-            <label>People or groups affected<textarea value={form.affectedPeople} onChange={(e) => update("affectedPeople", e.target.value)} rows={3} maxLength={500} aria-invalid={showErrors && form.affectedPeople.trim().length < 20} /><small>Describe whose access, work, safety, or information may be affected.</small></label>
-            <label>Role in decisions<textarea value={form.decisionRole} onChange={(e) => update("decisionRole", e.target.value)} rows={3} maxLength={500} aria-invalid={showErrors && form.decisionRole.trim().length < 20} /><small>State whether the AI informs, recommends, ranks, or makes a decision.</small></label>
+            <label>People or groups affected<textarea value={form.affectedPeople} onChange={(e) => update("affectedPeople", e.target.value)} rows={3} maxLength={MAX_AFFECTED_PEOPLE} aria-invalid={showErrors && (form.affectedPeople.trim().length < 20 || form.affectedPeople.trim().length > MAX_AFFECTED_PEOPLE)} /><small>{form.affectedPeople.length}/{MAX_AFFECTED_PEOPLE} characters. Describe whose access, work, safety, or information may be affected.</small></label>
+            <label>Role in decisions<textarea value={form.decisionRole} onChange={(e) => update("decisionRole", e.target.value)} rows={3} maxLength={MAX_DECISION_ROLE} aria-invalid={showErrors && (form.decisionRole.trim().length < 20 || form.decisionRole.trim().length > MAX_DECISION_ROLE)} /><small>{form.decisionRole.length}/{MAX_DECISION_ROLE} characters. State whether the AI informs, recommends, ranks, or makes a decision.</small></label>
           </fieldset>
         )}
 
