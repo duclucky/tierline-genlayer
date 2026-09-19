@@ -1,0 +1,9 @@
+{
+  "name": "tierline-project",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check.ps1",
+    "check:frontend": "npm --prefix frontend run typecheck && npm --prefix frontend test && npm --prefix frontend run build"
+  }
+}

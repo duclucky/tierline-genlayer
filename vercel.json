@@ -1,0 +1,15 @@
+{
+  "buildCommand": "npm --prefix frontend run build",
+  "installCommand": "npm --prefix frontend install",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/genlayer-rpc",
+      "destination": "/api/genlayer-rpc"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
