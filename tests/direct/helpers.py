@@ -42,6 +42,10 @@ def raw_text(value) -> str:
 def set_time(vm, timestamp: int) -> None:
     text = datetime.fromtimestamp(timestamp, timezone.utc).isoformat().replace("+00:00", "Z")
     vm.warp(text)
+    message_module = sys.modules.get("genlayer.message")
+    if message_module is not None:
+        message_module.raw["datetime"] = text
+        message_module.datetime = text
     gl_module = sys.modules.get("genlayer.gl")
     if gl_module is not None and getattr(gl_module, "message_raw", None) is not None:
         gl_module.message_raw["datetime"] = text
@@ -82,7 +86,7 @@ def mock_verdict(
 ) -> None:
     vm.mock_llm(
         LLM_PATTERN,
-        json.dumps(
+        json.dumps(json.dumps(
             {
                 "assessment_id": aid,
                 "attempt_id": tid,
@@ -92,7 +96,7 @@ def mock_verdict(
                 "basis_codes": codes or [],
                 "reason": reason,
             }
-        ),
+        )),
     )
 
 

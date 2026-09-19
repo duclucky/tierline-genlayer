@@ -8,21 +8,28 @@ import pytest
 from gltest.direct.loader import deploy_contract
 
 
-DIRECT_SDK_VERSION = "v0.2.16"
+DIRECT_SDK_VERSION = "v0.6.0-rc5"
 
 
 def _install_windows_stdin_patch() -> None:
     if os.name != "nt":
         return
-    from gltest.direct import loader
+    from gltest.direct import loader, sdk_loader
     from gltest.direct.vm import VMContext
+
+    # Keep direct-test extraction isolated from a potentially stale shared
+    # GenVM cache.  The exact runner is still selected from the contract
+    # Depends header; CI can populate this cache normally.
+    sdk_loader.CACHE_DIR = Path(__file__).resolve().parents[2] / ".genvm-direct-cache"
+    sdk_loader.BUNDLE_CACHE_DIR = sdk_loader.CACHE_DIR / "bundles-v2"
+    sdk_loader.TREE_CACHE_DIR = sdk_loader.CACHE_DIR / "trees-v2"
 
     if getattr(loader, "_tierline_windows_patch", False):
         return
 
     def inject_message_to_fd0(vm: VMContext) -> None:
-        from genlayer.py import calldata
-        from genlayer.py.types import Address
+        from genlayer import calldata
+        from genlayer.types import Address
 
         sender = Address(vm.sender) if isinstance(vm.sender, bytes) else vm.sender
         contract = Address(vm._contract_address) if isinstance(vm._contract_address, bytes) else vm._contract_address
@@ -53,6 +60,7 @@ def _install_windows_stdin_patch() -> None:
             os.close(fd)
 
     original_cleanup = VMContext._cleanup_after_deactivate
+    original_load_module = loader._load_module
 
     def cleanup_after_deactivate(self: VMContext) -> None:
         try:
@@ -67,6 +75,17 @@ def _install_windows_stdin_patch() -> None:
                 self._tierline_stdin_temp_path = None
 
     loader._inject_message_to_fd0 = inject_message_to_fd0
+
+    def load_module_with_fresh_contract_registry(contract_path: Path):
+        # The RC SDK correctly rejects two contracts in one module.  Direct
+        # tests load the same source module repeatedly in one Python process,
+        # so clear only the harness registry immediately before that reload.
+        import genlayer.contract as contract_api
+
+        contract_api.__known_contract__ = None
+        return original_load_module(contract_path)
+
+    loader._load_module = load_module_with_fresh_contract_registry
     loader._tierline_windows_patch = True
     VMContext._cleanup_after_deactivate = cleanup_after_deactivate
 

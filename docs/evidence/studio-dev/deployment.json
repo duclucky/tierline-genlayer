@@ -1,0 +1,27 @@
+{
+  "network": "studio-dev",
+  "chainId": 61997,
+  "rpc": "https://studio-dev.genlayer.com/api",
+  "contract": "Tierline",
+  "contractAddress": "0x9A1875a12Cb5d65969E7DbDE96D310e80534357c",
+  "explorerUrl": "https://explorer-studio-dev.genlayer.com/address/0x9A1875a12Cb5d65969E7DbDE96D310e80534357c",
+  "status": "FINALIZED",
+  "deploy": {
+    "transactionHash": "0x74ad35722de47f36d750b4e0f16de29f70869c48e2b1ae3be41aceb052e6f588",
+    "status": "7",
+    "executionResult": "FINISHED_WITH_RETURN",
+    "contractAddress": "0x9A1875a12Cb5d65969E7DbDE96D310e80534357c"
+  },
+  "feeDepositGen": "0.100000000000010352 GEN",
+  "sourceCommit": "58d161a75606c89adb255593cec23cca9da9144d",
+  "sourceSha256": "ff08bf859077b07da9d045235b4de85a5ae0aaabc998b0740b7acbc0093fb9d1",
+  "sourceDirtyAtDeployment": true,
+  "depends": "py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng",
+  "deployedAt": "2026-09-19T09:58:38.626Z",
+  "active": true,
+  "evidenceIsSanitized": true,
+  "smoke": {
+    "method": "get_assessment_count",
+    "result": "0"
+  }
+}

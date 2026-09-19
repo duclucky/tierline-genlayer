@@ -1,0 +1,30 @@
+{
+  "network": "studio-dev",
+  "chainId": 61997,
+  "contractAddress": "0x9A1875a12Cb5d65969E7DbDE96D310e80534357c",
+  "browserWorkflow": "create_assessment",
+  "transactionHash": "0x038e283d310036e38fbbd2758fc78beb333353f3b737964d572f34701a86e92e",
+  "transactionStatus": "FINALIZED",
+  "executionResult": "FINISHED_WITH_RETURN",
+  "consensusResult": "MAJORITY_AGREE",
+  "assessmentId": "A-1",
+  "assessmentPhaseAfterFinality": "AWAITING_RATIFICATION",
+  "sponsor": "0xBd733BC56Ec4a55FA25C068B9306b0171335D199",
+  "operator": "0x45aD397c438397A702B53a7499a78D08961D39Db",
+  "steward": "0x0FC3C5fc623F108D36BE1dA43ffA9ee21EC6dD2E",
+  "valueSent": "2 GEN",
+  "feeDepositQuoted": "0.0003 GEN",
+  "verification": {
+    "command": "client.readContract({ address, functionName: 'get_assessment', args: ['A-1'] })",
+    "canonicalFieldsRead": [
+      "assessment_id",
+      "phase",
+      "sponsor",
+      "operator",
+      "steward",
+      "system_name"
+    ]
+  },
+  "scope": "Chrome browser wallet payment-flow test only. Operator and steward addresses are test participants, not asserted as owner-controlled wallets.",
+  "evidenceIsSanitized": true
+}

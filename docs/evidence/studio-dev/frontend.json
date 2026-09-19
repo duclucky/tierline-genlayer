@@ -1,0 +1,18 @@
+{
+  "network": "studio-dev",
+  "contractAddress": "0x9A1875a12Cb5d65969E7DbDE96D310e80534357c",
+  "productionUrl": "https://tierline-genlayer.vercel.app",
+  "deploymentUrl": "https://tierline-genlayer-dbuyn47f2-duckys-projects-bc83c6a0.vercel.app",
+  "inspectionUrl": "https://vercel.com/duckys-projects-bc83c6a0/tierline-genlayer/AXEvjXnBLPLkp1LVmBxE13tm4pEt",
+  "status": "READY",
+  "browserVerification": {
+    "networkLabel": "studio-dev",
+    "contractConfigured": true,
+    "readPathConfigured": true,
+    "rpcCorsChainId": 61997,
+    "consoleErrors": 0
+  },
+  "limitations": [
+    "No browser-wallet write or 2 GEN lifecycle transaction was sent on this Studio-dev deployment."
+  ]
+}

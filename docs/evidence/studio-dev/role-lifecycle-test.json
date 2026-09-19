@@ -1,0 +1,38 @@
+{
+  "network": "studio-dev",
+  "chainId": 61997,
+  "contractAddress": "0x9A1875a12Cb5d65969E7DbDE96D310e80534357c",
+  "test": "ephemeral role EOA lifecycle",
+  "owner": "0xC495ef51618D03267A1f227aFe5b27B38c748272",
+  "operator": "0xcaD6bBd41017EFe814f005B62dcAE7dBcdF076aC",
+  "steward": "0x7C7fE6d8b6178Ab36DEAE322f10A03D298D54C04",
+  "fundingPerRole": "2 GEN",
+  "assessmentBudget": "2 GEN",
+  "assessmentId": "A-2",
+  "ratificationDeadline": 1789899817,
+  "reviewDeadline": 1789986217,
+  "finalPhase": "FINAL_MINIMAL",
+  "tier": "MINIMAL",
+  "launchMode": "ALLOW",
+  "settled": true,
+  "attemptCount": 1,
+  "lockedAfterLifecycle": "0 GEN",
+  "creditedAfterLifecycle": "0 GEN",
+  "withdrawnAfterLifecycle": "2 GEN",
+  "contractAccountingAfterLifecycle": {
+    "totalFunded": "4 GEN",
+    "totalLocked": "2 GEN",
+    "totalOutstandingCredit": "0 GEN",
+    "totalWithdrawn": "2 GEN"
+  },
+  "transactions": {
+    "stewardFunding": "0xd0cda8cd7d147311cd763f538ab7daa62f93e602a4061b4459bf2e5d9820f566",
+    "ownercreate_assessment": "0x5e7d4ba51aed3cf132bd2655763f4415f5e3df600e0ae8e191fea9dc2942bd37",
+    "operatorratify_assessment": "0xdb2cbb611d0122ca4ff6da32ce4b94524c4f5dbc4bb986a374e94ad3360bcf27",
+    "stewardratify_assessment": "0x3b4336fcf3e4191bdb4129c8e3c6e532bd3397ed331bd5645077b557419fc65e",
+    "operatorrequest_review": "0xf5d8fbd58f6486faf878a14c31720f951950828e08cd712ca4eac9a7865fa1b2",
+    "operatorwithdraw_credit": "0x217f715d81e1735429a2f3c8641fce2e5409f9ef9b1f7a9aef03394a5e3a6882"
+  },
+  "evidenceIsSanitized": true,
+  "privateKeysPersisted": "local ignored recovery state only"
+}

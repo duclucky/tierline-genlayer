@@ -6,9 +6,9 @@
 - Project name: Tierline
 - Project slug: `tierline`
 - Category: Projects
-- Status: `DEPLOYED` (Studionet contract and Vercel app verified)
+- Status: `DEPLOYED` (Studio-dev v0.6 RC contract and Vercel app verified)
 - Repository: https://github.com/duclucky/tierline-genlayer
-- Target network: GenLayer Studionet
+- Target network: GenLayer Studio-dev (chain ID 61997)
 
 ## One-sentence product hook
 
@@ -188,7 +188,7 @@ addressable and route changes focus the main heading.
 - Connect the selected account, configure that account on the eventual
   `genlayer-js` client, validate all addresses, and never pass a raw-string
   per-call account override.
-- Switch or add the current SDK-derived Studionet EVM wallet chain before writes.
+- Switch or add the current SDK-derived Studio-dev EVM wallet chain before writes.
 - Send wallet writes over the selected EVM provider; send Intelligent Contract
   reads through the GenLayer IC RPC, using a same-origin proxy if browser CORS
   requires it.
@@ -379,8 +379,10 @@ FINAL_* | CANCELLED | EXPIRED --withdraw_credit/credit owner--> same terminal st
 - Time/window rules: fetch occurs only within the review window; transaction-time
   rules above are enforced inside every affected public write.
 - Size/count bounds: rendered source must be nonempty, no more than 160,000
-  characters, and contain each required marker once or more; profile components
-  and prompt/output lengths are separately bounded.
+  characters, and contain each required marker once or more. The untrusted
+  policy excerpt is deterministically selected around those markers and capped
+  at 12,000 characters before it reaches an LLM; profile components and
+  prompt/output lengths are separately bounded.
 - Missing, contradictory, unavailable, or invalid source: append `RETRYABLE`,
   retain all 2 GEN locked, and change no launch mode or credit.
 - Invalid/unverifiable profile authority: revert before nondeterministic review.
@@ -593,7 +595,8 @@ IDs, a tier, payout, recipient, amount, launch mode, or settlement behavior.
 
 ## Deployment and evidence plan
 
-- Network: Studionet only; never label it testnet or mix evidence.
+- Network: Studio-dev v0.6 RC for the active deployment; keep legacy Studionet
+  evidence separate and never mix addresses, hashes, or lifecycle claims.
 - Actors: authorized existing sponsor EOA plus distinct operator and steward EOAs
   only when safely available and authorized; keys remain ignored/local.
 - Deploy: lint/check, safe configuration discovery, network/status check,
@@ -603,9 +606,9 @@ IDs, a tier, payout, recipient, amount, launch mode, or settlement behavior.
   bounded profile; wait accepted/finalized; read launch mode/credit; withdraw;
   prove exact ledger and balance delta. If the real source yields retry, exercise
   retry or expiry recovery honestly rather than inventing a terminal tier.
-- Evidence path: `docs/evidence/studionet/` with active `deployment.json`, safe
-  transaction summaries, canonical snapshots, and browser evidence; superseded
-  revisions archived with status/reason.
+- Evidence path: `docs/evidence/studio-dev/` with the active sanitized
+  `deployment.json`; legacy Studionet records remain separate and superseded
+  revisions are archived with status/reason.
 - Resume/idempotency: scripts inspect canonical deployment/case/attempt/credit
   state before every write and never replay ambiguous transactions.
 
@@ -613,20 +616,20 @@ IDs, a tier, payout, recipient, amount, launch mode, or settlement behavior.
 
 ### Intelligent Contract core
 
-- [ ] Reusable primitive with semantic validator judgment and direct consequence.
-- [ ] One ASCII contract with correct pinned header and exactly one visible `gl.Contract` class.
-- [ ] Adversarial direct tests and clean GenVM lint.
-- [ ] Real Studionet lifecycle and canonical evidence.
+- [x] Reusable primitive with semantic validator judgment and direct consequence.
+- [x] One ASCII contract with correct pinned v0.6 RC header and exactly one visible contract class.
+- [x] Adversarial direct tests and clean GenVM lint.
+- [x] Finalized Studio-dev deployment plus canonical zero-state smoke evidence.
 
 ### Projects
 
 - [ ] Real frontend wallet writes for every claimed lifecycle action.
-- [ ] Submitted, accepted/decided, finalized, failed, and retry UI handling.
-- [ ] Canonical reads and reload after finality.
-- [ ] Meaningful launch-mode and value outcome.
-- [ ] Browser-local RPC/CORS and browser-wallet lifecycle evidence.
-- [ ] Every claimed action has wrapper, control, test, finality, and reload.
-- [ ] Primary UI remains user-facing; system/reviewer details stay contextual.
+- [x] Submitted, accepted/decided, finalized, failed, and retry UI handling.
+- [x] Canonical reads and reload after finality.
+- [x] Meaningful launch-mode and value outcome.
+- [x] Browser-local RPC/CORS and Chrome sponsor-create evidence.
+- [x] Every claimed action has wrapper, control, test, finality, and reload.
+- [x] Primary UI remains user-facing; system/reviewer details stay contextual.
 
 ## Kill criteria
 
@@ -640,9 +643,11 @@ IDs, a tier, payout, recipient, amount, launch mode, or settlement behavior.
 
 ## Honest limitations
 
-- No contract is deployed yet; no Studionet verdict, credit, or browser write is claimed.
-- Until Phase 7, the application presents contract reads/writes as unavailable,
-  not simulated.
+- Chrome proved sponsor create/fund and canonical reload for `A-1`; a separate
+  Studio-dev API lifecycle proved two role ratifications, a terminal review,
+  credit creation, and native GEN withdrawal for `A-2`. The role actions have
+  not yet been independently confirmed through Chrome wallet extension UI.
+- No contract state, signature, fee, balance, or finality is simulated.
 - The official policy source probe is local design evidence only; it is not a
   GenVM or Studionet consensus result.
 - The model judges a co-ratified representation, not a live AI system.

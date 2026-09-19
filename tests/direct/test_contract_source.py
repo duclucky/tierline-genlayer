@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 CONTRACT = Path(__file__).parents[2] / "contracts" / "tierline.py"
-PINNED_HEADER = '# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }'
+PINNED_HEADER = '# { "Depends": "py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng" }'
 WRITE_METHODS = {
     "create_assessment",
     "ratify_assessment",
@@ -26,6 +26,8 @@ def test_contract_is_ascii_pinned_and_has_one_contract_class() -> None:
     assert text.splitlines()[0] == PINNED_HEADER
     assert "py-genlayer:test" not in text
     assert "py-genlayer:latest" not in text
+    assert "allow as allow_storage" in text
+    assert text.count("@allow_storage") == 3
     tree = ast.parse(text)
     visible = [
         node
@@ -33,9 +35,11 @@ def test_contract_is_ascii_pinned_and_has_one_contract_class() -> None:
         if isinstance(node, ast.ClassDef)
         and any(
             isinstance(base, ast.Attribute)
-            and isinstance(base.value, ast.Name)
-            and base.value.id == "gl"
             and base.attr == "Contract"
+            and isinstance(base.value, ast.Attribute)
+            and isinstance(base.value.value, ast.Name)
+            and base.value.value.id == "gl"
+            and base.value.attr == "contract"
             for base in node.bases
         )
     ]
@@ -88,3 +92,19 @@ def test_consensus_and_settlement_are_contract_owned() -> None:
     for launch_mode in ("ALLOW", "REQUIRE_DISCLOSURE", "REQUIRE_SAFEGUARDS", "BLOCK"):
         assert launch_mode in text
 
+
+def test_review_consensus_path_does_not_catch_unrecoverable_vm_errors() -> None:
+    """The live VM rolls back bare-exception paths before retry state can persist."""
+    tree = ast.parse(source())
+    tierline = next(node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == "Tierline")
+    review = next(node for node in tierline.body if isinstance(node, ast.FunctionDef) and node.name == "_run_review")
+    bare_handlers = [
+        handler
+        for handler in ast.walk(review)
+        if isinstance(handler, ast.ExceptHandler)
+        and (
+            handler.type is None
+            or isinstance(handler.type, ast.Name) and handler.type.id == "Exception"
+        )
+    ]
+    assert bare_handlers == []

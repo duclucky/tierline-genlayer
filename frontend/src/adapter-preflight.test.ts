@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createClient } from "genlayer-js";
-import { studionet } from "genlayer-js/chains";
+import { studioDevnet } from "genlayer-js/chains";
 import { createContractAdapter } from "./adapter";
 
 // Wallet-account preflight (docs/05 section 12): exercise the real
@@ -19,7 +19,7 @@ function interceptWallet(requests: WalletRequest[]) {
     async request(request: WalletRequest) {
       requests.push(request);
       if (request.method === "wallet_switchEthereumChain") return null;
-      if (request.method === "eth_chainId") return `0x${studionet.id.toString(16)}`;
+      if (request.method === "eth_chainId") return `0x${studioDevnet.id.toString(16)}`;
       if (request.method === "eth_sendTransaction") return fixtureHash;
       throw new Error(`Unexpected wallet method ${request.method}`);
     },
@@ -36,7 +36,30 @@ function stubValueRpc() {
       eth_getTransactionCount: "0x0",
       eth_estimateGas: "0x30d40",
       eth_gasPrice: "0x0",
+      eth_blockNumber: "0x1",
     };
+    if (body.method === "eth_getTransactionReceipt") {
+      return new Response(JSON.stringify({
+        jsonrpc: "2.0",
+        id: body.id ?? 1,
+        result: {
+          transactionHash: fixtureHash,
+          transactionIndex: "0x0",
+          blockHash: `0x${"aa".repeat(32)}`,
+          blockNumber: "0x1",
+          from: sender,
+          to: contract,
+          cumulativeGasUsed: "0x0",
+          gasUsed: "0x0",
+          contractAddress: null,
+          logs: [],
+          logsBloom: `0x${"00".repeat(256)}`,
+          status: "0x1",
+          effectiveGasPrice: "0x0",
+          type: "0x0",
+        },
+      }), { status: 200, headers: { "content-type": "application/json" } });
+    }
     const result = fixtures[body.method ?? ""];
     if (!result) throw new Error(`Unexpected RPC ${body.method}`);
     return new Response(JSON.stringify({ jsonrpc: "2.0", id: body.id ?? 1, result }), {
@@ -47,16 +70,38 @@ function stubValueRpc() {
   return { rpcMethods, restore: () => (globalThis.fetch = originalFetch) };
 }
 
-function offlineClientFactory() {
+function offlineClientFactory(
+  waitRequests: Array<{ waitUntil?: string }> = [],
+  feeRequests: Array<Record<string, unknown>> = [],
+) {
   const factory: typeof createClient = (config) => {
     const client = createClient({
       ...config,
-      chain: { ...studionet, rpcUrls: { default: { http: ["https://offline-tierline.invalid"] } } },
+      chain: { ...studioDevnet, rpcUrls: { default: { http: ["https://offline-tierline.invalid"] } } },
     });
-    client.waitForTransactionReceipt = (async () => ({
-      resultName: "SUCCESS",
+    client.estimateTransactionFeesForWrite = (async (request: unknown) => {
+      feeRequests.push(request as Record<string, unknown>);
+      return {
+      distribution: {
+        leaderTimeunitsAllocation: 0n,
+        validatorTimeunitsAllocation: 0n,
+        appealRounds: 0n,
+        executionBudgetPerRound: 0n,
+        maxPriceGenPerTimeUnit: 0n,
+        storageFeeMaxGasPrice: 0n,
+        receiptFeeMaxGasPrice: 0n,
+      },
+      feeValue: 0n,
+      policy: { enabled: false },
+      };
+    }) as unknown as typeof client.estimateTransactionFeesForWrite;
+    client.waitForTransactionReceipt = (async (request: unknown) => {
+      waitRequests.push(request as { waitUntil?: string });
+      return {
+      statusName: "ACCEPTED",
       txExecutionResultName: "FINISHED_WITH_RETURN",
-    })) as unknown as typeof client.waitForTransactionReceipt;
+      };
+    }) as unknown as typeof client.waitForTransactionReceipt;
     return client;
   };
   return factory;
@@ -71,7 +116,8 @@ describe("Tierline adapter wallet-account boundary", () => {
     const walletRequests: WalletRequest[] = [];
     const provider = interceptWallet(walletRequests);
     const { rpcMethods, restore } = stubValueRpc();
-    const factory = offlineClientFactory();
+    const waitRequests: Array<{ waitUntil?: string }> = [];
+    const factory = offlineClientFactory(waitRequests);
     const adapter = createContractAdapter({
       contractAddress: contract,
       endpoint: "https://offline-tierline.invalid",
@@ -98,7 +144,8 @@ describe("Tierline adapter wallet-account boundary", () => {
     expect(transaction.from.toLowerCase()).toBe(sender);
     expect(BigInt(transaction.value)).toBe(2n * 10n ** 18n);
     expect(walletRequests.some((request) => request.method === "wallet_switchEthereumChain")).toBe(true);
-    expect(phases).toEqual(["AWAITING_SIGNATURE", "SUBMITTED", "ACCEPTED", "FINALIZED"]);
+    expect(phases).toEqual(["FEE_QUOTED", "AWAITING_SIGNATURE", "SUBMITTED", "ACCEPTED", "FINALIZED"]);
+    expect(waitRequests.map((request) => request.waitUntil)).toEqual(["decided", "finalized"]);
     expect(rpcMethods).toContain("eth_estimateGas");
     restore();
   });
@@ -123,6 +170,29 @@ describe("Tierline adapter wallet-account boundary", () => {
       expect(transaction.from.toLowerCase()).toBe(sender);
       expect(BigInt(transaction.value)).toBe(0n);
     }
+    restore();
+  });
+
+  it("allocates an external GEN-transfer message before withdrawing a credit", async () => {
+    const walletRequests: WalletRequest[] = [];
+    const provider = interceptWallet(walletRequests);
+    const { restore } = stubValueRpc();
+    const feeRequests: Array<Record<string, unknown>> = [];
+    const adapter = createContractAdapter({
+      contractAddress: contract,
+      endpoint: "https://offline-tierline.invalid",
+      clientFactory: offlineClientFactory([], feeRequests),
+      sessionGetter: () => ({ account: sender, provider }),
+    });
+    await adapter.withdrawCredit("A-1", () => undefined);
+    const request = feeRequests.at(-1);
+    expect(request?.functionName).toBe("withdraw_credit");
+    expect(request?.messageAllocations).toMatchObject([{
+      messageType: 0,
+      recipient: sender,
+      callKey: `0x${"00".repeat(32)}`,
+      budget: 42_000n,
+    }]);
     restore();
   });
 

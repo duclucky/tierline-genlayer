@@ -59,11 +59,11 @@ export function phaseTone(phase: string): string {
 }
 
 export function explorerAddressUrl(address: string): string {
-  return `https://explorer-studio.genlayer.com/address/${address}`;
+  return `https://explorer-studio-dev.genlayer.com/address/${address}`;
 }
 
 export function explorerTransactionUrl(hash: string): string {
-  return `https://explorer-studio.genlayer.com/transaction/${hash}`;
+  return `https://explorer-studio-dev.genlayer.com/transaction/${hash}`;
 }
 
 export function shortHex(value: string): string {

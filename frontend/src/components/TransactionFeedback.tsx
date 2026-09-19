@@ -3,6 +3,7 @@ import type { TransactionState } from "../adapter";
 import { explorerTransactionUrl } from "../labels";
 
 const PHASE_COPY: Record<TransactionState["phase"], string> = {
+  FEE_QUOTED: "Fee quoted",
   AWAITING_SIGNATURE: "Waiting for your signature",
   SUBMITTED: "Submitted to the network",
   ACCEPTED: "Accepted by validators",
@@ -32,6 +33,16 @@ export function TransactionFeedback({
       <div>
         <strong>{PHASE_COPY[state.phase]}</strong>
         <p>{state.message}</p>
+        {state.feeDepositGen !== undefined && (
+          <p className="mono">Fee deposit: {state.feeDepositGen} GEN</p>
+        )}
+        {state.phase === "FINALIZED" && (
+          <p className="mono">
+            Fee consumed: {state.feeConsumedGen ?? "unavailable"}
+            {state.feeConsumedGen !== undefined ? " GEN" : ""} · Refund: {state.feeRefundGen ?? "unavailable"}
+            {state.feeRefundGen !== undefined ? " GEN" : ""}
+          </p>
+        )}
         {state.phase === "FAILED" && onRetry && (
           <button className="button secondary compact" type="button" onClick={onRetry}>
             <ArrowClockwise aria-hidden="true" />Try again

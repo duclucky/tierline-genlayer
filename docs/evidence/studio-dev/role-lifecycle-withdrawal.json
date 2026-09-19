@@ -1,0 +1,39 @@
+{
+  "network": "studio-dev",
+  "chainId": 61997,
+  "contractAddress": "0x9A1875a12Cb5d65969E7DbDE96D310e80534357c",
+  "assessmentId": "A-2",
+  "operator": "0xcaD6bBd41017EFe814f005B62dcAE7dBcdF076aC",
+  "parentTransaction": {
+    "hash": "0x217f715d81e1735429a2f3c8641fce2e5409f9ef9b1f7a9aef03394a5e3a6882",
+    "status": "FINALIZED",
+    "executionResult": "SUCCESS",
+    "feeDeposit": "0.000609 GEN",
+    "messageAllocation": {
+      "type": "External",
+      "recipient": "0xcaD6bBd41017EFe814f005B62dcAE7dBcdF076aC",
+      "value": "2 GEN",
+      "gasLimit": 21000,
+      "maxGasPrice": "2 wei",
+      "callKey": "unnamed"
+    }
+  },
+  "childTransfer": {
+    "hash": "0x2f471377507d7264db2965e825e79a7f9a8508d3667757ec6869b857c8d0332e",
+    "status": "FINALIZED",
+    "from": "0x9A1875a12Cb5d65969E7DbDE96D310e80534357c",
+    "to": "0xcaD6bBd41017EFe814f005B62dcAE7dBcdF076aC",
+    "value": "2 GEN"
+  },
+  "canonicalAfterFinality": {
+    "assessmentWithdrawn": "2 GEN",
+    "operatorCredit": "0 GEN",
+    "operatorCreditWithdrawn": true,
+    "globalFunded": "4 GEN",
+    "globalLocked": "2 GEN",
+    "globalOutstandingCredit": "0 GEN",
+    "globalWithdrawn": "2 GEN",
+    "operatorBalance": "3.999557799749994943 GEN"
+  },
+  "evidenceIsSanitized": true
+}

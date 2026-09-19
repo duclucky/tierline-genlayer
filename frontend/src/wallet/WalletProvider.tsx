@@ -10,9 +10,9 @@ import {
 import type { DetectedWallet, Eip1193Provider } from "./types";
 import {
   asValidatedAddress,
-  ensureStudionet,
+  ensureStudioDevnet,
   setActiveWalletSession,
-  STUDIONET_WALLET_CHAIN,
+  STUDIO_DEV_WALLET_CHAIN,
 } from "./session";
 
 type WalletContextValue = {
@@ -96,7 +96,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
           const accounts = await wallet.provider.request({ method: "eth_accounts" });
           const candidate = Array.isArray(accounts) && typeof accounts[0] === "string" ? accounts[0] : "";
           const chainId = await wallet.provider.request({ method: "eth_chainId" });
-          if (/^0x[a-fA-F0-9]{40}$/.test(candidate) && String(chainId).toLowerCase() === STUDIONET_WALLET_CHAIN.chainId.toLowerCase()) {
+          if (/^0x[a-fA-F0-9]{40}$/.test(candidate) && String(chainId).toLowerCase() === STUDIO_DEV_WALLET_CHAIN.chainId.toLowerCase()) {
             setActiveWalletSession({ account: asValidatedAddress(candidate), provider: wallet.provider });
             setSelectedWallet(wallet);
             setAccount(candidate);
@@ -128,7 +128,7 @@ export function WalletProvider({ children }: PropsWithChildren) {
       if (!/^0x[a-fA-F0-9]{40}$/.test(nextAccount)) {
         throw new Error("The wallet did not return a valid EVM address.");
       }
-      await ensureStudionet(wallet.provider);
+      await ensureStudioDevnet(wallet.provider);
       setActiveWalletSession({ account: asValidatedAddress(nextAccount), provider: wallet.provider });
       setSelectedWallet(wallet);
       setAccount(nextAccount);

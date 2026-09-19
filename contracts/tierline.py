@@ -1,10 +1,12 @@
-# { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
+# { "Depends": "py-genlayer:5jycge4q8k23462jtb0b9fyey1s9qz928sz2nbrd9mg4sxqg2qng" }
 import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from genlayer import *
+import genlayer as gl
+from genlayer.storage import DynArray, TreeMap, allow as allow_storage
+from genlayer.types import Address, bigint, u16, u256
 
 
 # Locked source policy: the official European Commission AI Act risk guide.
@@ -25,6 +27,10 @@ REQUIRED_MARKERS = (
     "regulation (eu) 2024/1689",
 )
 MAX_SOURCE_CHARS = 160000
+# Never place a whole rendered policy page in an LLM prompt.  The render can be
+# valid while still exceeding the runner/model context budget; that turns an
+# otherwise retryable review into an unrecoverable VM resource error.
+MAX_PROMPT_SOURCE_CHARS = 12000
 
 # Tiers and launch modes. RETRYABLE is non-penalizing and moves no value.
 TIER_PROHIBITED = "PROHIBITED"
@@ -161,6 +167,21 @@ def _normalize_page(page: str) -> str:
     return " ".join(page.lower().split())
 
 
+def _policy_excerpt(normalized_page: str) -> str:
+    """Return bounded, deterministic contexts around each locked policy marker."""
+    radius = MAX_PROMPT_SOURCE_CHARS // (len(REQUIRED_MARKERS) * 2)
+    chunks = []
+    for marker in REQUIRED_MARKERS:
+        index = normalized_page.find(marker)
+        if index < 0:
+            return ""
+        start = max(0, index - radius)
+        end = min(len(normalized_page), index + len(marker) + radius)
+        chunks.append(normalized_page[start:end])
+    excerpt = "\n".join(chunks)
+    return excerpt[:MAX_PROMPT_SOURCE_CHARS]
+
+
 def _sender() -> Address:
     try:
         return gl.message.sender_address
@@ -193,6 +214,11 @@ def _now() -> bigint:
         raw = gl.message_raw.get("datetime", "")
     except Exception:
         raw = ""
+    if not raw:
+        try:
+            raw = gl.message.datetime
+        except Exception:
+            raw = ""
     if raw:
         try:
             return bigint(int(raw))
@@ -207,10 +233,7 @@ def _now() -> bigint:
                 return bigint(int(parsed.timestamp()))
             except Exception:
                 pass
-    try:
-        return bigint(int(gl.message.datetime))
-    except Exception:
-        raise gl.vm.UserError("canonical transaction time unavailable")
+    raise gl.vm.UserError("canonical transaction time unavailable")
 
 
 def _require_bounded_text(value: str, label: str, maximum: int) -> str:
@@ -319,7 +342,7 @@ def _meaning_key(normalized) -> tuple:
     )
 
 
-class Tierline(gl.Contract):
+class Tierline(gl.contract.Contract):
     assessments: TreeMap[str, AssessmentRecord]
     attempts: TreeMap[str, AttemptRecord]
     credits: TreeMap[str, CreditRecord]
@@ -594,7 +617,7 @@ class Tierline(gl.Contract):
             page = None
             try:
                 page = gl.nondet.web.render(SOURCE_URL, mode="text")
-            except Exception:
+            except (gl.vm.UserError, gl.nondet.NondetException):
                 page = None
             if (
                 not isinstance(page, str)
@@ -611,6 +634,10 @@ class Tierline(gl.Contract):
                 if marker not in normalized_page:
                     result["reason"] = "official policy source is missing a required version marker"
                     return result
+            policy_excerpt = _policy_excerpt(normalized_page)
+            if len(policy_excerpt) == 0:
+                result["reason"] = "official policy source could not produce a bounded review excerpt"
+                return result
             result["source_coverage"] = "FULL"
             # Actor-adjacent text below is untrusted data. Canonical objective,
             # authority, taxonomy, and output schema come from the contract.
@@ -630,7 +657,7 @@ class Tierline(gl.Contract):
                 "high-risk basis applies, tier HIGH_RISK; else if any transparency basis applies, "
                 "tier TRANSPARENCY; else MINIMAL with exactly NO_LISTED_TRIGGER. If the guide "
                 "cannot be applied to the profile, answer tier RETRYABLE with no basis codes.\n"
-                "BEGIN UNTRUSTED OFFICIAL POLICY PAGE\n" + page + "\nEND UNTRUSTED OFFICIAL POLICY PAGE\n"
+                "BEGIN UNTRUSTED OFFICIAL POLICY EXCERPT\n" + policy_excerpt + "\nEND UNTRUSTED OFFICIAL POLICY EXCERPT\n"
                 "BEGIN UNTRUSTED CO-RATIFIED PROFILE\n"
                 "system_name: " + system_name + "\n"
                 "purpose: " + purpose + "\n"
@@ -648,13 +675,13 @@ class Tierline(gl.Contract):
             answer = None
             try:
                 answer = gl.nondet.exec_prompt(prompt, response_format="json")
-            except Exception:
+            except (gl.vm.UserError, gl.nondet.NondetException):
                 answer = None
             normalized = None
             try:
                 if isinstance(answer, str):
                     answer = json.loads(answer)
-            except Exception:
+            except ValueError:
                 answer = None
             if isinstance(answer, dict):
                 normalized = _normalize_answer(answer, assessment_id, attempt_id)
@@ -674,7 +701,7 @@ class Tierline(gl.Contract):
                 return False
             try:
                 mine = leader_fn()
-            except Exception:
+            except gl.vm.UserError:
                 return False
             return _meaning_key(mine) == _meaning_key(leader)
 

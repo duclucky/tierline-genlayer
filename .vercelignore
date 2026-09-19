@@ -1,9 +1,10 @@
 .venv/
+.venv-rc/
+.genvm-rc/
+.genvm-direct-cache/
+.pytest_cache/
 artifacts/
-contracts/
-tests/
-spikes/
-pyproject.toml
-requirements.txt
-gltest.config.yaml
-docs/
+frontend/node_modules/
+frontend/dist/
+docs/evidence/localnet/
+docs/evidence/studionet/private/

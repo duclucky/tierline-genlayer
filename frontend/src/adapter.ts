@@ -1,9 +1,14 @@
-import { createClient } from "genlayer-js";
-import { studionet } from "genlayer-js/chains";
-import { TransactionStatus } from "genlayer-js/types";
+import {
+  CALL_KEY_UNNAMED,
+  createClient,
+  encodeExternalMessageFeeParams,
+  isSuccessful,
+  MessageType,
+} from "genlayer-js";
+import { studioDevnet } from "genlayer-js/chains";
 import { isAddress, type Address } from "viem";
 import {
-  ensureStudionet,
+  ensureStudioDevnet,
   getActiveWalletSession,
   type ActiveWalletSession,
 } from "./wallet/session";
@@ -12,7 +17,7 @@ import type { Eip1193Provider } from "./wallet/types";
 // Typed adapter boundary between the Tierline UI and the deployed
 // Intelligent Contract. Canonical reads go through the GenLayer IC RPC
 // endpoint (same-origin proxy by default); wallet writes go through the
-// selected EVM provider after an explicit Studionet chain check.
+// selected EVM provider after an explicit Studio-dev chain check.
 
 export const BUDGET_GEN = 2;
 export const BUDGET_BASE_UNITS = BigInt(BUDGET_GEN) * 10n ** 18n;
@@ -24,6 +29,25 @@ const IC_ENDPOINT = String(
   import.meta.env.VITE_GENLAYER_IC_RPC_URL ?? "/genlayer-rpc",
 ).trim();
 
+// A native GEN withdrawal emits one external, unnamed value-transfer message.
+// Studio Next requires this allocation tree before the GenVM can emit it.
+const NATIVE_TRANSFER_GAS_LIMIT = 21_000n;
+const NATIVE_TRANSFER_MAX_GAS_PRICE = 2n;
+
+function feeAllocationsForWrite(method: string, recipient: Address) {
+  if (method !== "withdraw_credit") return undefined;
+  return [{
+    messageType: MessageType.External,
+    recipient,
+    callKey: CALL_KEY_UNNAMED,
+    budget: NATIVE_TRANSFER_GAS_LIMIT * NATIVE_TRANSFER_MAX_GAS_PRICE,
+    feeParams: encodeExternalMessageFeeParams({
+      gasLimit: NATIVE_TRANSFER_GAS_LIMIT,
+      maxGasPrice: NATIVE_TRANSFER_MAX_GAS_PRICE,
+    }),
+  }];
+}
+
 export type AdapterOptions = {
   contractAddress?: string;
   endpoint?: string;
@@ -32,6 +56,7 @@ export type AdapterOptions = {
 };
 
 export type TransactionPhase =
+  | "FEE_QUOTED"
   | "AWAITING_SIGNATURE"
   | "SUBMITTED"
   | "ACCEPTED"
@@ -42,6 +67,9 @@ export type TransactionState = {
   phase: TransactionPhase;
   message: string;
   hash?: string;
+  feeDepositGen?: string;
+  feeConsumedGen?: string;
+  feeRefundGen?: string;
 };
 
 export type TransactionHash = string;
@@ -353,6 +381,23 @@ function asList(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [];
 }
 
+function receiptFeeAccounting(receipt: unknown): {
+  consumedGen?: string;
+  refundedGen?: string;
+} {
+  if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)) return {};
+  const item = receipt as Record<string, unknown>;
+  const accounting = item.feeAccounting ?? item.fee_accounting;
+  if (!accounting || typeof accounting !== "object" || Array.isArray(accounting)) return {};
+  const values = accounting as Record<string, unknown>;
+  const consumed = values.primary_fee_spent ?? values.execution_fee_consumed;
+  const refunded = values.total_refunded ?? values.primary_fee_refunded;
+  return {
+    ...(consumed !== undefined ? { consumedGen: baseUnitsToGen(consumed) } : {}),
+    ...(refunded !== undefined ? { refundedGen: baseUnitsToGen(refunded) } : {}),
+  };
+}
+
 async function writeTransaction(
   method: string,
   args: Array<string | number>,
@@ -367,54 +412,85 @@ async function writeTransaction(
   );
   try {
     // The wallet may have switched networks since connect. Enforce the
-    // wallet-compatible Studionet chain immediately before every write.
-    await ensureStudionet(signer.provider);
+    // wallet-compatible Studio-dev chain immediately before every write.
+    await ensureStudioDevnet(signer.provider);
     // The selected account is configured here at createClient; individual
     // write calls never override it with a raw string.
     const client = (options.clientFactory ?? createClient)({
-      chain: studionet,
+      chain: studioDevnet,
       endpoint: options.endpoint ?? IC_ENDPOINT,
       account: signer.account,
       provider: signer.provider,
     });
+    const messageAllocations = feeAllocationsForWrite(method, signer.account);
+    const feeQuote = await client.estimateTransactionFeesForWrite({
+      address,
+      functionName: method,
+      args,
+      value,
+      ...(messageAllocations ? { messageAllocations } : {}),
+    });
+    const feeDepositGen = baseUnitsToGen(feeQuote.feeValue);
+    onPhase({
+      phase: "FEE_QUOTED",
+      message: `Fee deposit quoted: ${feeDepositGen} GEN. Unused fees are refunded after finality.`,
+      feeDepositGen,
+    });
     onPhase({
       phase: "AWAITING_SIGNATURE",
       message: "Confirm this transaction in your selected wallet.",
+      feeDepositGen,
     });
-    const rawHash = await client.writeContract({ address, functionName: method, args, value });
+    const rawHash = await client.writeContract({
+      address,
+      functionName: method,
+      args,
+      value,
+      fees: {
+        distribution: feeQuote.distribution,
+        ...(feeQuote.messageAllocations?.length ? { messageAllocations: feeQuote.messageAllocations } : {}),
+        feeValue: feeQuote.feeValue,
+      },
+    });
     const hash = String(rawHash);
     onPhase({
       phase: "SUBMITTED",
       message: "Transaction submitted; waiting for the network.",
       hash,
+      feeDepositGen,
     });
     const accepted = await client.waitForTransactionReceipt({
       hash: rawHash,
-      status: TransactionStatus.ACCEPTED,
+      waitUntil: "decided",
       interval: 1500,
       retries: 40,
     });
-    if (isFailedReceipt(accepted)) {
+    if (isFailedReceipt(accepted) || !isSuccessful(accepted)) {
       throw new Error("The accepted transaction contains a contract execution error.");
     }
     onPhase({
       phase: "ACCEPTED",
       message: "Decision accepted; waiting for network finality.",
       hash,
+      feeDepositGen,
     });
     const finalized = await client.waitForTransactionReceipt({
       hash: rawHash,
-      status: TransactionStatus.FINALIZED,
+      waitUntil: "finalized",
       interval: 2500,
       retries: 120,
     });
-    if (isFailedReceipt(finalized)) {
+    if (isFailedReceipt(finalized) || !isSuccessful(finalized)) {
       throw new Error("The finalized transaction did not execute successfully.");
     }
+    const accounting = receiptFeeAccounting(finalized);
     onPhase({
       phase: "FINALIZED",
-      message: "Transaction finalized. Reloading canonical contract state.",
+      message: "Transaction finalized. Reloading canonical contract state and fee accounting.",
       hash,
+      feeDepositGen,
+      feeConsumedGen: accounting.consumedGen,
+      feeRefundGen: accounting.refundedGen,
     });
     return hash;
   } catch (cause) {
@@ -436,7 +512,7 @@ export function createContractAdapter(options: AdapterOptions = {}): TierlineAda
 
   function readClientFactory() {
     return (options.clientFactory ?? createClient)({
-      chain: studionet,
+      chain: studioDevnet,
       endpoint,
     });
   }

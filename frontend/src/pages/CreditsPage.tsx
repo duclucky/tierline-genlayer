@@ -75,7 +75,7 @@ export function CreditsPage() {
       <PageHeader eyebrow="Value recovery" title="Credits" description="Withdraw only credits owned by the connected address after a finalized Tierline outcome." />
       <section className="balance-strip" aria-label="Credit summary">
         <div><span>Available to withdraw</span><strong>{account && isContractConfigured && !loading && !error ? `${availableTotal} GEN` : "— GEN"}</strong></div>
-        <div><span>Network</span><strong>Studionet</strong></div>
+        <div><span>Network</span><strong>Studio-dev</strong></div>
         <div><span>Canonical source</span><strong>{isContractConfigured ? "Contract view" : "Not configured"}</strong></div>
       </section>
       <TransactionFeedback state={txState} onRetry={!unresolved ? () => setTxState(null) : undefined} />

@@ -304,7 +304,7 @@ def test_source_outage_is_retryable_and_moves_no_value(direct_deploy, direct_vm,
 def test_missing_version_marker_is_retryable(direct_deploy, direct_vm, direct_alice, direct_bob, direct_charlie):
     contract = direct_deploy(CONTRACT_PATH)
     create_ready_assessment(contract, direct_vm, direct_alice, direct_bob, direct_charlie, "A-1")
-    mock_source(direct_vm, ec_page().replace("Last update 3 August 2026", "Last update 1 May 2025"))
+    mock_source(direct_vm, ec_page().replace("Transparency risk", "Disclosure obligation"))
     set_time(direct_vm, BASE_TIME + 120)
     direct_vm.sender = direct_alice
     contract.request_review("A-1")
