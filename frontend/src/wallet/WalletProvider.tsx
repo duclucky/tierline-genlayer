@@ -12,6 +12,7 @@ import {
   asValidatedAddress,
   ensureStudionet,
   setActiveWalletSession,
+  STUDIONET_WALLET_CHAIN,
 } from "./session";
 
 type WalletContextValue = {
@@ -83,8 +84,29 @@ export function WalletProvider({ children }: PropsWithChildren) {
       addWallet(event.detail);
 
     window.addEventListener("eip6963:announceProvider", onAnnouncement);
-    collectFallbackWallets().forEach(addWallet);
+    const fallbacks = collectFallbackWallets();
+    fallbacks.forEach(addWallet);
     window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+    // Restore an account that this browser wallet already authorized without
+    // requesting permissions or persisting wallet state in localStorage.
+    void (async () => {
+      for (const wallet of fallbacks) {
+        try {
+          const accounts = await wallet.provider.request({ method: "eth_accounts" });
+          const candidate = Array.isArray(accounts) && typeof accounts[0] === "string" ? accounts[0] : "";
+          const chainId = await wallet.provider.request({ method: "eth_chainId" });
+          if (/^0x[a-fA-F0-9]{40}$/.test(candidate) && String(chainId).toLowerCase() === STUDIONET_WALLET_CHAIN.chainId.toLowerCase()) {
+            setActiveWalletSession({ account: asValidatedAddress(candidate), provider: wallet.provider });
+            setSelectedWallet(wallet);
+            setAccount(candidate);
+            break;
+          }
+        } catch {
+          // An unavailable provider simply remains disconnected.
+        }
+      }
+    })();
 
     return () =>
       window.removeEventListener("eip6963:announceProvider", onAnnouncement);
@@ -140,4 +162,3 @@ export function useWallet() {
   if (!context) throw new Error("useWallet must be used within WalletProvider");
   return context;
 }
-
