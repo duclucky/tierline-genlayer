@@ -266,24 +266,24 @@ async function lifecycle() {
     writeEvidence(LIFECYCLE_PATH, record);
   }
   let reviewed = await readAssessment();
-  console.log(`REVIEW_STATE phase=${reviewed.phase} tier=${reviewed.tier || "-"} attempt=${reviewed.attemptCount}`);
+  console.log(`REVIEW_STATE phase=${reviewed.phase} tier=${reviewed.tier || "-"} attempt=${reviewed.attempt_count}`);
 
   // Step 4: one honest retry if the network returned a non-penalizing RETRYABLE.
   if (reviewed.phase === "RETRYABLE" && !record.steps.retryReview) {
-    const attemptId = `${assessmentId}-T-${reviewed.attemptCount}`;
+    const attemptId = `${assessmentId}-T-${reviewed.attempt_count}`;
     console.log(`RETRY_PENDING current attempt=${attemptId}`);
     const { hash } = await writeTx(clients.sponsor, "retry_review", [assessmentId, attemptId]);
     record.steps.retryReview = { hash, expectedAttempt: attemptId };
     writeEvidence(LIFECYCLE_PATH, record);
     reviewed = await readAssessment();
-    console.log(`RETRY_STATE phase=${reviewed.phase} tier=${reviewed.tier || "-"} attempt=${reviewed.attemptCount}`);
+    console.log(`RETRY_STATE phase=${reviewed.phase} tier=${reviewed.tier || "-"} attempt=${reviewed.attempt_count}`);
   }
   if (!["FINAL_MINIMAL", "FINAL_TRANSPARENCY", "FINAL_HIGH_RISK", "FINAL_PROHIBITED"].includes(reviewed.phase)) {
     throw new Error(`assessment did not reach a terminal tier (phase=${reviewed.phase}); value must not be treated as settled`);
   }
 
   // Step 5: read the finalized consequence and balances before withdrawal.
-  const attempt = await viewJson(clients.reader, "get_attempt", [`${assessmentId}-T-${reviewed.attemptCount}`]);
+  const attempt = await viewJson(clients.reader, "get_attempt", [`${assessmentId}-T-${reviewed.attempt_count}`]);
   const accountingBefore = await viewJson(clients.reader, "get_accounting");
   const creditOwner =
     reviewed.phase === "FINAL_MINIMAL" ? accounts.operator.address :
@@ -302,7 +302,7 @@ async function lifecycle() {
     phase: reviewed.phase,
     tier: reviewed.tier,
     launchMode: reviewed.launchMode,
-    attempt: `${assessmentId}-T-${reviewed.attemptCount}`,
+    attempt: `${assessmentId}-T-${reviewed.attempt_count}`,
     attemptOutcome: attempt.outcome,
     basisCodes: attempt.basis_codes,
     sourceCoverage: attempt.source_coverage,

@@ -49,7 +49,8 @@ def set_time(vm, timestamp: int) -> None:
 
 def ec_page() -> str:
     return (
-        "European AI Act - Regulatory framework overview. Page id: regulatory-framework-ai. "
+        "AI Act | Shaping Europe's digital future. European AI Act - Regulatory "
+        "framework overview. Page id: regulatory-framework-ai. "
         "The AI Act follows a risk-based approach with four categories. "
         "Unacceptable risk: AI practices that are banned, including manipulation, social "
         "scoring, and real-time biometric identification by law enforcement. "

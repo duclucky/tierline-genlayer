@@ -1,0 +1,21 @@
+{
+  "network": "studionet",
+  "chainId": 61999,
+  "contract": "Tierline",
+  "contractAddress": "0x57e46A55d93cA1f9698b26576eB09eDa5e3Df648",
+  "explorerUrl": "https://explorer-studio.genlayer.com/address/0x57e46A55d93cA1f9698b26576eB09eDa5e3Df648",
+  "deploy": {
+    "transactionHash": "0x604a1b60a747d23600c96bd33edb7ef0ac170c73db14b1bb5ccd377a7016cb88",
+    "status": "FINALIZED",
+    "resultName": "MAJORITY_AGREE",
+    "executionResult": "SUCCESS",
+    "executionError": ""
+  },
+  "sourceCommit": "4647f5c62a26f90eeb60f01cd5c66d1adfb6dcd1",
+  "sourceSha256": "4967d5ed70328205b5f3e6897a173583ee2fdf97c65cd27ae7af33c91800d95d",
+  "depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6",
+  "rpc": "https://studio.genlayer.com/api",
+  "deployedAt": "2026-09-19T00:42:40.412Z",
+  "active": true,
+  "evidenceIsSanitized": true
+}

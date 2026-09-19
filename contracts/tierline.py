@@ -12,7 +12,8 @@ from genlayer import *
 # can supply an alternate evidence URL or version.
 SOURCE_URL = "https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai"
 SOURCE_VERSION = "EC-AI-RISK-2026-08-03"
-SOURCE_TITLE_MARKER = "regulatory-framework-ai"
+# Page-identity marker verified against the official page's rendered text.
+SOURCE_IDENTITY_MARKER = "Shaping Europe"
 REQUIRED_MARKERS = (
     "Unacceptable risk",
     "High risk",
@@ -592,7 +593,7 @@ class Tierline(gl.Contract):
                 not isinstance(page, str)
                 or len(page) == 0
                 or len(page) > MAX_SOURCE_CHARS
-                or SOURCE_TITLE_MARKER not in page
+                or SOURCE_IDENTITY_MARKER not in page
             ):
                 result["reason"] = "official policy source unavailable or out of bounds"
                 return result
