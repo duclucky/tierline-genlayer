@@ -22,6 +22,23 @@ const SPONSOR_KEY = "STUDIONET_PRIVATE_KEY";
 const OPERATOR_KEY = "STUDIONET_INTEGRATOR_PRIVATE_KEY";
 const STEWARD_KEY = "STUDIONET_STEWARD_PRIVATE_KEY";
 
+function formatGen(value) {
+  const amount = BigInt(value);
+  const whole = amount / GEN;
+  const fraction = amount % GEN;
+  if (fraction === 0n) return `${whole} GEN`;
+  return `${whole}.${fraction.toString().padStart(18, "0").replace(/0+$/, "")} GEN`;
+}
+
+function formatAccounting(accounting) {
+  return {
+    totalFundedGen: formatGen(accounting.total_funded),
+    totalLockedGen: formatGen(accounting.total_locked),
+    totalOutstandingCreditGen: formatGen(accounting.total_outstanding_credit),
+    totalWithdrawnGen: formatGen(accounting.total_withdrawn),
+  };
+}
+
 function parseEnv(text) {
   const result = {};
   for (const line of String(text).split(/\r?\n/)) {
@@ -297,17 +314,17 @@ async function lifecycle() {
     "sponsor";
   const creditBefore = await viewJson(clients.reader, "get_credit", [assessmentId, creditOwner]);
   const balanceBefore = await balance(creditOwner);
-  console.log(`CONSEQUENCE phase=${reviewed.phase} launch=${reviewed.launchMode} credit=${creditBefore.amount} wei to ${creditOwnerRole}`);
+  console.log(`CONSEQUENCE phase=${reviewed.phase} launch=${reviewed.launch_mode} credit=${formatGen(creditBefore.amount)} to ${creditOwnerRole}`);
   record.steps.consequence = {
     phase: reviewed.phase,
     tier: reviewed.tier,
-    launchMode: reviewed.launchMode,
+    launch_mode: reviewed.launch_mode,
     attempt: `${assessmentId}-T-${reviewed.attempt_count}`,
     attemptOutcome: attempt.outcome,
     basisCodes: attempt.basis_codes,
     sourceCoverage: attempt.source_coverage,
     creditOwner: creditOwnerRole,
-    creditBeforeWei: creditBefore.amount,
+    creditBeforeGen: formatGen(creditBefore.amount),
   };
   writeEvidence(LIFECYCLE_PATH, record);
 
@@ -328,11 +345,11 @@ async function lifecycle() {
   record.steps.withdraw = {
     ...record.steps.withdraw,
     owner: creditOwnerRole,
-    creditedWei: creditBefore.amount,
-    balanceDeltaWei: delta.toString(),
-    creditAfter: creditAfter.amount,
-    accountingBefore,
-    accountingAfter,
+    creditedGen: formatGen(creditBefore.amount),
+    balanceDeltaGen: formatGen(delta),
+    creditAfterGen: formatGen(creditAfter.amount),
+    accountingBefore: formatAccounting(accountingBefore),
+    accountingAfter: formatAccounting(accountingAfter),
   };
   writeEvidence(LIFECYCLE_PATH, record);
 
@@ -343,8 +360,8 @@ async function lifecycle() {
   const outstanding = BigInt(a.total_outstanding_credit);
   const withdrawn = BigInt(a.total_withdrawn);
   if (funded !== locked + outstanding + withdrawn) throw new Error("global accounting invariant violated");
-  console.log(`LIFECYCLE_COMPLETE assessment=${assessmentId} phase=${reviewed.phase} launch=${reviewed.launchMode} withdrawnWei=${withdrawn}`);
-  console.log(`ACCOUNTING funded=${funded} locked=${locked} outstanding=${outstanding} withdrawn=${withdrawn}`);
+  console.log(`LIFECYCLE_COMPLETE assessment=${assessmentId} phase=${reviewed.phase} launch=${reviewed.launch_mode} withdrawn=${formatGen(withdrawn)}`);
+  console.log(`ACCOUNTING funded=${formatGen(funded)} locked=${formatGen(locked)} outstanding=${formatGen(outstanding)} withdrawn=${formatGen(withdrawn)}`);
 }
 
 const command = process.argv[2] ?? "";

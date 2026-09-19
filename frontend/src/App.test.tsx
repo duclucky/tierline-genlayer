@@ -17,10 +17,10 @@ describe("Tierline product shell", () => {
     expect(screen.getAllByRole("link", { name: "Assessments" }).length).toBeGreaterThan(0);
   });
 
-  it("keeps canonical assessment state honest when no contract exists", () => {
+  it("keeps canonical assessment state gated until a wallet connects", () => {
     renderApp("/assessments");
-    expect(screen.getByText(/no deployed contract address is configured/i)).toBeInTheDocument();
     expect(screen.getByText(/connect to find your assessments/i)).toBeInTheDocument();
+    expect(screen.getByText(/connect a wallet to find assessments/i)).toBeInTheDocument();
   });
 
   it("supports the multi-step assessment journey without simulating submission", async () => {

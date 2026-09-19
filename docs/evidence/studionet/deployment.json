@@ -2,20 +2,20 @@
   "network": "studionet",
   "chainId": 61999,
   "contract": "Tierline",
-  "contractAddress": "0xF58B82551A80Cf76dd2c31F2f7726445854d664A",
-  "explorerUrl": "https://explorer-studio.genlayer.com/address/0xF58B82551A80Cf76dd2c31F2f7726445854d664A",
+  "contractAddress": "0x79e9B3f5e844b46F1DD7a33da038CAF92E1BC20f",
+  "explorerUrl": "https://explorer-studio.genlayer.com/address/0x79e9B3f5e844b46F1DD7a33da038CAF92E1BC20f",
   "deploy": {
-    "transactionHash": "0x4175b69451dd986420f259b47f2029718c9b37de37f36143359554a558b06e58",
+    "transactionHash": "0x12e2eb74af627139e630174a3d711d8ccd3d3fa747c6fee8303e74e78b240d31",
     "status": "FINALIZED",
     "resultName": "MAJORITY_AGREE",
     "executionResult": "SUCCESS",
     "executionError": ""
   },
-  "sourceCommit": "2234b1d8ebf01945c9ef35672c704e52381dd134",
-  "sourceSha256": "258b97089f3591bfa8e7937501f922a0a7ed723690f4e5833ae2ec7a32f0480f",
+  "sourceCommit": "652feed69e9a77aea6611509669959bf75222322",
+  "sourceSha256": "a38918e104dc5e164a5d196c9a301ce05c9d5b4d3a9fe65cf75cbda48c50560e",
   "depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6",
   "rpc": "https://studio.genlayer.com/api",
-  "deployedAt": "2026-09-19T00:49:43.212Z",
+  "deployedAt": "2026-09-19T01:18:54.606Z",
   "active": true,
   "evidenceIsSanitized": true
 }

@@ -7,10 +7,10 @@ dist/
 coverage/
 __pycache__/
 *.py[cod]
+*.tsbuildinfo
 .pytest_cache/
 .venv/
 docs/evidence/localnet/
 docs/evidence/studionet/private/
 deployment.local.json
 frontend/.vercel/
-

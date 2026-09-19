@@ -1,0 +1,32 @@
+{
+  "network": "studionet",
+  "evidenceIsSanitized": true,
+  "actors": {
+    "sponsor": "0xC495ef51618D03267A1f227aFe5b27B38c748272",
+    "operator": "0x45aD397c438397A702B53a7499a78D08961D39Db",
+    "steward": "0x0FC3C5fc623F108D36BE1dA43ffA9ee21EC6dD2E"
+  },
+  "steps": {
+    "create": {
+      "assessmentId": "A-1",
+      "hash": "0x8c87110659276c9e1ec0cada5f18ed2b37f03894ccd075f532da750628fa6aa0",
+      "phase": "AWAITING_RATIFICATION"
+    },
+    "ratifyOperator": {
+      "hash": "0xd3998dd637d3b5106b76744bc04ad63687ddd52d22f75ac62b6ffd766eb6957c"
+    },
+    "ratifySteward": {
+      "hash": "0xb78dfd7e77afe09874cb44dadd9d377288b1f9a0d568934ad16d3cb15339cfde"
+    },
+    "requestReview": {
+      "hash": "0x4a35b5ea61d9adce065d71e18d75b16e28e5a6bfa27dd9e5339be9980822613e"
+    },
+    "retryReview": {
+      "hash": "0x9bb5793eb1f90b86e7df921c551b6d82fbe4808f9836d4339a74864650821b70",
+      "expectedAttempt": "A-1-T-1"
+    }
+  },
+  "revision_status": "ABANDONED",
+  "archive_reason": "Structural source bug: the required version marker 'Last update 3 August 2026' sits in the page footer, which the official rendering used by validators does not include (bounded probe evidence in source-probe.json), so every review resolved to non-penalizing RETRYABLE. The superseding revision anchors the version to the AI Act legal citation over normalized rendered text.",
+  "value_status": "Assessment A-1 holds exactly 2 GEN locked (creation tx 0x8c87110659276c9e1ec0cada5f18ed2b37f03894ccd075f532da750628fa6aa0). Under the broken-contract replacement exception no further value is sent to this revision; the contract's own recover_expired path can refund the sponsor credit after the review deadline."
+}

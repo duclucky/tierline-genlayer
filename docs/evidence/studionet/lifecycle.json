@@ -9,21 +9,71 @@
   "steps": {
     "create": {
       "assessmentId": "A-1",
-      "hash": "0x8c87110659276c9e1ec0cada5f18ed2b37f03894ccd075f532da750628fa6aa0",
+      "hash": "0xbf6112b6a8acc3c754307957d693e011248920a527876788f1bb5d5a8c0b1a0c",
       "phase": "AWAITING_RATIFICATION"
     },
     "ratifyOperator": {
-      "hash": "0xd3998dd637d3b5106b76744bc04ad63687ddd52d22f75ac62b6ffd766eb6957c"
+      "hash": "0x61f577257daa3179e1e8d020371411be4905985299632def81642b7a5411d8d4"
     },
     "ratifySteward": {
-      "hash": "0xb78dfd7e77afe09874cb44dadd9d377288b1f9a0d568934ad16d3cb15339cfde"
+      "hash": "0x76aa26bedbff3fe895e2a18426fc25a397555ea515974d9ea6d577c2d614becf"
     },
     "requestReview": {
-      "hash": "0x4a35b5ea61d9adce065d71e18d75b16e28e5a6bfa27dd9e5339be9980822613e"
+      "hash": "0x60cff7ddcee761aae11a879102ff8678866da44879ec7cffea33e4fa823d1620"
     },
-    "retryReview": {
-      "hash": "0x9bb5793eb1f90b86e7df921c551b6d82fbe4808f9836d4339a74864650821b70",
-      "expectedAttempt": "A-1-T-1"
+    "consequence": {
+      "phase": "FINAL_HIGH_RISK",
+      "tier": "HIGH_RISK",
+      "attempt": "A-1-T-1",
+      "attemptOutcome": "TERMINAL",
+      "basisCodes": [
+        "EMPLOYMENT"
+      ],
+      "sourceCoverage": "FULL",
+      "creditOwner": "steward",
+      "creditBeforeGen": "2 GEN",
+      "launch_mode": "REQUIRE_SAFEGUARDS"
+    },
+    "withdraw": {
+      "hash": "0x2e3f9b44144e9e6ab5d7909c99c8cbf086a84cb405647b455059dfb4ec1c2577",
+      "owner": "steward",
+      "creditedGen": "2 GEN",
+      "balanceDeltaGen": "2 GEN",
+      "creditAfterGen": "0 GEN",
+      "accountingBefore": {
+        "totalFundedGen": "2 GEN",
+        "totalLockedGen": "0 GEN",
+        "totalOutstandingCreditGen": "2 GEN",
+        "totalWithdrawnGen": "0 GEN"
+      },
+      "accountingAfter": {
+        "totalFundedGen": "2 GEN",
+        "totalLockedGen": "0 GEN",
+        "totalOutstandingCreditGen": "0 GEN",
+        "totalWithdrawnGen": "2 GEN"
+      }
     }
+  },
+  "final": {
+    "assessment_id": "A-1",
+    "phase": "FINAL_HIGH_RISK",
+    "tier": "HIGH_RISK",
+    "launch_mode": "REQUIRE_SAFEGUARDS",
+    "attempt_count": 1,
+    "basis_codes": [
+      "EMPLOYMENT"
+    ],
+    "source_coverage": "FULL",
+    "attempt_outcome": "TERMINAL",
+    "lockedGen": "0 GEN",
+    "creditedTotalGen": "0 GEN",
+    "withdrawnTotalGen": "2 GEN",
+    "accounting": {
+      "totalFundedGen": "2 GEN",
+      "totalLockedGen": "0 GEN",
+      "totalOutstandingCreditGen": "0 GEN",
+      "totalWithdrawnGen": "2 GEN"
+    },
+    "settled": true
   }
 }
