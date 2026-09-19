@@ -5,6 +5,7 @@
   "contractAddress": "0x79e9B3f5e844b46F1DD7a33da038CAF92E1BC20f",
   "explorerUrl": "https://explorer-studio.genlayer.com/address/0x79e9B3f5e844b46F1DD7a33da038CAF92E1BC20f",
   "deploy": {
+    "verification": "Result: SUCCESS",
     "transactionHash": "0x12e2eb74af627139e630174a3d711d8ccd3d3fa747c6fee8303e74e78b240d31",
     "status": "FINALIZED",
     "resultName": "MAJORITY_AGREE",
