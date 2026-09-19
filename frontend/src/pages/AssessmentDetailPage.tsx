@@ -11,11 +11,12 @@ import { isContractConfigured } from "../config";
 import { explorerAddressUrl, launchModeLabel, phaseLabel, phaseTone, shortHex, tierLabel } from "../labels";
 import { useWallet } from "../wallet/WalletProvider";
 
-function participantName(address: string, assessment: AssessmentModel): string {
+function participantName(address: string, assessment: AssessmentModel, account: string): string {
   const normalized = address.toLowerCase();
-  if (assessment.sponsor.toLowerCase() === normalized) return "Sponsor (you)";
-  if (assessment.operator.toLowerCase() === normalized) return "AI operator (you)";
-  if (assessment.steward.toLowerCase() === normalized) return "Safety steward (you)";
+  const isConnected = account.toLowerCase() === normalized;
+  if (assessment.sponsor.toLowerCase() === normalized) return isConnected ? "Sponsor (you)" : shortHex(address);
+  if (assessment.operator.toLowerCase() === normalized) return isConnected ? "AI operator (you)" : shortHex(address);
+  if (assessment.steward.toLowerCase() === normalized) return isConnected ? "Safety steward (you)" : shortHex(address);
   return shortHex(address);
 }
 
@@ -137,9 +138,9 @@ export function AssessmentDetailPage() {
           <div className="detail-panel">
             <h2>Participants</h2>
             <dl>
-              <div><dt>Sponsor</dt><dd><a href={explorerAddressUrl(assessment.sponsor)} target="_blank" rel="noreferrer">{participantName(assessment.sponsor, assessment)}</a></dd></div>
-              <div><dt>AI operator</dt><dd><a href={explorerAddressUrl(assessment.operator)} target="_blank" rel="noreferrer">{participantName(assessment.operator, assessment)}</a> · {assessment.operatorRatified ? "approved" : "pending"}</dd></div>
-              <div><dt>Safety steward</dt><dd><a href={explorerAddressUrl(assessment.steward)} target="_blank" rel="noreferrer">{participantName(assessment.steward, assessment)}</a> · {assessment.stewardRatified ? "approved" : "pending"}</dd></div>
+              <div><dt>Sponsor</dt><dd><a href={explorerAddressUrl(assessment.sponsor)} target="_blank" rel="noreferrer">{participantName(assessment.sponsor, assessment, account)}</a></dd></div>
+              <div><dt>AI operator</dt><dd><a href={explorerAddressUrl(assessment.operator)} target="_blank" rel="noreferrer">{participantName(assessment.operator, assessment, account)}</a> · {assessment.operatorRatified ? "approved" : "pending"}</dd></div>
+              <div><dt>Safety steward</dt><dd><a href={explorerAddressUrl(assessment.steward)} target="_blank" rel="noreferrer">{participantName(assessment.steward, assessment, account)}</a> · {assessment.stewardRatified ? "approved" : "pending"}</dd></div>
               <div><dt>Ratification deadline</dt><dd>{formatTimestamp(assessment.ratificationDeadline)}</dd></div>
               <div><dt>Review deadline</dt><dd>{formatTimestamp(assessment.reviewDeadline)}</dd></div>
             </dl>
